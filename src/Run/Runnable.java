@@ -21,6 +21,7 @@ public class Runnable {
             AFN afn = new AFN(regexp);
             PrintWriter writer = new PrintWriter("AFN.txt", "UTF-8");
             writer.println("REGULAR EXPRESSION: "+regexp);
+            writer.println("REGULAR EXPRESSION IN POSTFIX: "+afn.getPostFixRegExp());
             writer.println("SYMBOL LIST: "+afn.getSymbolList());
             writer.println("TRANSITIONS LIST: "+afn.getTransitionsList());
             writer.println("FINAL STATE: "+afn.getFinalStates());

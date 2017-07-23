@@ -29,6 +29,7 @@ public class AFN {
     private State previousInitialState;
     private State previousFinalState;
     private Stack<State> lookahead;
+    private Stack<State> lookahead2;
 
     /**
      * Constructor
@@ -43,6 +44,7 @@ public class AFN {
         symbolList = new LinkedList<Character>();
         transitionsList = new LinkedList<Transition>();
         lookahead = new Stack<State>();
+        lookahead2 = new Stack<State>();
         finalStates = new LinkedList<State>();
         initialState = new LinkedList<String>();
         states = new LinkedList<String>();
@@ -89,6 +91,8 @@ public class AFN {
     public List<String> getInitialState () {
         return this.initialState;
     }
+
+    public String getPostFixRegExp() { return this.postFixRegExp; }
 
     public void computeStateList() {
         for (int i = 0; i < transitionsList.size(); i++) {
@@ -141,10 +145,20 @@ public class AFN {
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("|")) {
                 unify(previousInitialState, previousFinalState, currentInitialState, currentFinalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("*")) {
+                if (lookahead2.size() > 0) {
+                    currentInitialState = lookahead2.pop();
+                }
                 kleene(currentInitialState, currentFinalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals(".")) {
                 if(lookahead.size() > 0) {
                     previousFinalState = lookahead.pop();
+                }
+                // lookahead
+                if ((i+1) < postFixRegExp.length()) {
+                    if (Character.toString(postFixRegExp.charAt(i+1)).equals("*")) {
+                        // danger, I said danger
+                        lookahead2.push(previousInitialState);
+                    }
                 }
                 concatenate(previousFinalState, currentInitialState);
             }
