@@ -18,6 +18,9 @@ public class AFN {
     private String postFixRegExp; // the regExp in postfix
     private List<Character> symbolList; // AFN's symbol list
     private List<Transition> transitionsList; // AFN's transitions list
+    private List<State> finalStates;
+    private List<String> initialState;
+    private List<String> states;
 
     public static int stateCount;
 
@@ -36,12 +39,17 @@ public class AFN {
         this.regExp = regExp;
         postFix = new PostFix();
         postFixRegExp = PostFix.infixToPostfix(regExp);
-        System.out.println(postFixRegExp);
+        //System.out.println(postFixRegExp);
         symbolList = new LinkedList<Character>();
         transitionsList = new LinkedList<Transition>();
         lookahead = new Stack<State>();
+        finalStates = new LinkedList<State>();
+        initialState = new LinkedList<String>();
+        states = new LinkedList<String>();
         computeSymbolList();
         regExpToAFN();
+        computeStateList();
+        computeInitialState();
     }
 
     /**
@@ -68,6 +76,41 @@ public class AFN {
 
     public List<Transition> getTransitionsList () {
         return this.transitionsList;
+    }
+
+    public List<State> getFinalStates () {
+        return this.finalStates;
+    }
+
+    public List<String> getStates () {
+        return this.states;
+    }
+
+    public List<String> getInitialState () {
+        return this.initialState;
+    }
+
+    public void computeStateList() {
+        for (int i = 0; i < transitionsList.size(); i++) {
+            if (!states.contains(transitionsList.get(i).getInitialState().toString())) {
+                states.add(transitionsList.get(i).getInitialState().toString());
+            }
+
+            if (!states.contains(transitionsList.get(i).getFinalState().toString())) {
+                states.add(transitionsList.get(i).getFinalState().toString());
+            }
+
+        }
+    }
+
+    public void computeInitialState() {
+        for (int i = 0; i < transitionsList.size(); i++) {
+            if (transitionsList.get(i).getInitialState().getPreviousStates().size() == 0) {
+                if (!initialState.contains(transitionsList.get(i).getInitialState().toString())) {
+                    initialState.add(transitionsList.get(i).getInitialState().toString());
+                }
+            }
+        }
     }
 
     private void regExpToAFN(){
@@ -104,6 +147,10 @@ public class AFN {
                     previousFinalState = lookahead.pop();
                 }
                 concatenate(previousFinalState, currentInitialState);
+            }
+
+            if (i == postFixRegExp.length()-1) {
+                finalStates.add(currentFinalState);
             }
         }
     }

@@ -33,6 +33,10 @@ public class State {
         this.nextStates.add(nextState);
     }
 
+    public List<State> getPreviousStates() {
+        return this.previousStates;
+    }
+
     public String toString() {
         return String.valueOf(this.stateId);
     }

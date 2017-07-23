@@ -8,8 +8,11 @@ import Syntax.PostFix;
  */
 public class Runnable {
     public static void main(String []args) {
-        AFN afn = new AFN("(b|b)*abb(a|b)*");
+        AFN afn = new AFN("(a*|b*)c");
         System.out.println(afn.getSymbolList());
         System.out.println(afn.getTransitionsList());
+        System.out.println(afn.getFinalStates());
+        System.out.println(afn.getStates());
+        System.out.println(afn.getInitialState());
     }
 }
