@@ -5,6 +5,7 @@ import Syntax.PostFix;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Scanner;
 
 /**
  * Runnable.
@@ -15,11 +16,31 @@ import java.io.PrintWriter;
  * Valid characters:
  *      Use any symbol rather than '|', '*', '+', '?', '^', '.'
  *      You MUST use ε in your expression for representation of an empty word. (Just copy it from here)
+ *
+ * Example of valid regexps:
+ *      (a|ε)b(a+)c?
+ *      (b|b)*abb(a|b)*
+ *      (a*|b*)c
+ *      (a|b)*a(a|b)(a|b)
+ *      b+abc+
+ *      ab*ab*
  */
 public class Runnable {
     public static String regexp;
     public static void main(String []args) {
-        regexp = "(a|ε)b(a+)c?"; // This is the regexp you need to supply
+        //regexp = "(a|ε)b(a+)c?"; // This is the regexp you need to supply
+
+        // supply the regexp through user input
+        System.out.println("Welcome. Please enter a regexp.");
+        System.out.println("NOTE:\n" +
+                " * Valid characters:\n" +
+                " *      Use any symbol rather than '|', '*', '+', '?', '^', '.'\n" +
+                " *      You MUST use ε in your expression for representation of an empty word. (Just copy it from here)");
+        Scanner sc = new Scanner(System.in);
+
+        regexp = sc.nextLine();
+        System.out.println("File written to: your_current_directory/AFN.txt");
+
         writeFile();
     }
 
