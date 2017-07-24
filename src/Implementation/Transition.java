@@ -1,6 +1,9 @@
 package Implementation;
 
 /**
+ * Transition.
+ * Every symbol in the AFN is represented with a Transition that has an initial State, a final State and a String with the symbol.
+ * Speaking in Graph terms, it would be an Edge e.
  * Created by Gabriel Brolo on 22/07/2017.
  */
 public class Transition {

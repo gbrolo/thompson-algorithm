@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * State.
+ * A state in the AFN.
+ * Speaking in Graph terms it would be a Vertex v.
  * Created by Gabriel Brolo on 22/07/2017.
  */
 public class State {
@@ -15,7 +18,7 @@ public class State {
         this.stateId = stateId;
         this.previousStates = new LinkedList<State>();
         this.nextStates = new LinkedList<State>();
-        AFN.stateCount++;
+        AFN.stateCount++; // sets a unique ID which comes from AFN's total stateCount
     }
 
     public State(int stateId, List<State> previousState, List<State> nextState) {

@@ -1,5 +1,6 @@
 package Implementation;
 
+import Syntax.ExpressionSimplifier;
 import Syntax.PostFix;
 
 import java.util.Collections;
@@ -9,7 +10,8 @@ import java.util.Stack;
 
 /**
  * AFN
- * An AFN constructed from a regExp using McNaughton-Yamada-Thompson's algorithm
+ * An AFN constructed from a regExp using McNaughton-Yamada-Thompson's algorithm.
+ * Output @AFN.txt: a txt file with the contents of the AFN.
  * Created by Gabriel Brolo on 22/07/2017.
  */
 public class AFN {
@@ -18,18 +20,23 @@ public class AFN {
     private String postFixRegExp; // the regExp in postfix
     private List<Character> symbolList; // AFN's symbol list
     private List<Transition> transitionsList; // AFN's transitions list
-    private List<State> finalStates;
-    private List<String> initialState;
-    private List<String> states;
+    private List<State> finalStates; // AFN's acceptation states list
+    private List<String> initialState; // AFN's initial state
+    private List<String> states; // AFN's states
 
-    public static int stateCount;
+    public static int stateCount; // id for States
 
+    /* For state handlening */
     private State currentInitialState;
     private State currentFinalState;
     private State previousInitialState;
     private State previousFinalState;
     private Stack<State> lookahead;
     private Stack<State> lookahead2;
+    private Stack<State> lookahead3;
+
+    /* Abbrebiations and yuxtaposition concatenation */
+    private ExpressionSimplifier expressionSimplifier;
 
     /**
      * Constructor
@@ -38,13 +45,15 @@ public class AFN {
     public AFN(String regExp) {
         stateCount = 0;
         this.regExp = regExp;
+        expressionSimplifier = new ExpressionSimplifier(this.regExp);
         postFix = new PostFix();
-        postFixRegExp = PostFix.infixToPostfix(regExp);
-        //System.out.println(postFixRegExp);
+        postFixRegExp = PostFix.infixToPostfix(expressionSimplifier.getRegExp());
+        //System.out.println(expressionSimplifier.getRegExp());
         symbolList = new LinkedList<Character>();
         transitionsList = new LinkedList<Transition>();
         lookahead = new Stack<State>();
         lookahead2 = new Stack<State>();
+        lookahead3 = new Stack<State>();
         finalStates = new LinkedList<State>();
         initialState = new LinkedList<String>();
         states = new LinkedList<String>();
@@ -69,31 +78,8 @@ public class AFN {
     }
 
     /**
-     * Returns symbolList, the List with symbols as Characters
-     * @return @symbolList
+     * Adds AFN's states to stateList
      */
-    public List<Character> getSymbolList () {
-        return this.symbolList;
-    }
-
-    public List<Transition> getTransitionsList () {
-        return this.transitionsList;
-    }
-
-    public List<State> getFinalStates () {
-        return this.finalStates;
-    }
-
-    public List<String> getStates () {
-        return this.states;
-    }
-
-    public List<String> getInitialState () {
-        return this.initialState;
-    }
-
-    public String getPostFixRegExp() { return this.postFixRegExp; }
-
     public void computeStateList() {
         for (int i = 0; i < transitionsList.size(); i++) {
             if (!states.contains(transitionsList.get(i).getInitialState().toString())) {
@@ -103,10 +89,12 @@ public class AFN {
             if (!states.contains(transitionsList.get(i).getFinalState().toString())) {
                 states.add(transitionsList.get(i).getFinalState().toString());
             }
-
         }
     }
 
+    /**
+     * Adds AFN's initial state to list
+     */
     public void computeInitialState() {
         for (int i = 0; i < transitionsList.size(); i++) {
             if (transitionsList.get(i).getInitialState().getPreviousStates().size() == 0) {
@@ -117,14 +105,21 @@ public class AFN {
         }
     }
 
+    /**
+     * The real deal.
+     * Parses the expression to an AFN.
+     */
     private void regExpToAFN(){
         // valid expression stored at postFixRegExp
 
+        // new transition for first symbol
+        // from here, every symbol has a Transition that represents it
         Transition tr0 = new Transition(Character.toString(postFixRegExp.charAt(0)));
         transitionsList.add(tr0);
         currentInitialState = tr0.getInitialState();
         currentFinalState = tr0.getFinalState();
 
+        // Traverse the rest of the expression
         for (int i = 1; i < postFixRegExp.length(); i ++) {
             // if character at i is in symbolList
             if (symbolList.contains(postFixRegExp.charAt(i))) {
@@ -135,7 +130,7 @@ public class AFN {
                 previousFinalState = currentFinalState;
                 currentFinalState = tr1.getFinalState();
 
-                // lookahead
+                // lookahead for yuxtaposed symbols
                 if ((i+1) <= postFixRegExp.length()) {
                     if (symbolList.contains(postFixRegExp.charAt(i+1))) {
                         // danger, I said danger
@@ -143,17 +138,47 @@ public class AFN {
                     }
                 }
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("|")) {
+                // if char is OR
                 unify(previousInitialState, previousFinalState, currentInitialState, currentFinalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("*")) {
+                //if char is kleene
+
+                // lookahead for concatenation
+                if ((i+1) < postFixRegExp.length()) {
+                    if (Character.toString(postFixRegExp.charAt(i+1)).equals(".")) {
+                        // danger, I said danger
+                        lookahead.push(previousFinalState);
+                    }
+                }
+
                 if (lookahead2.size() > 0) {
                     currentInitialState = lookahead2.pop();
                 }
                 kleene(currentInitialState, currentFinalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals(".")) {
+                // if char is concatenation
+
+                // lookahead for concatenation
+                if ((i+1) < postFixRegExp.length()) {
+                    if (Character.toString(postFixRegExp.charAt(i+1)).equals(".")) {
+                        // danger, I said danger
+                        lookahead2.push(previousInitialState);
+                    }
+                }
+
                 if(lookahead.size() > 0) {
                     previousFinalState = lookahead.pop();
                 }
-                // lookahead
+
+                if(lookahead3.size() > 0) {
+                    currentFinalState = lookahead3.pop();
+                }
+
+                if(lookahead2.size() > 0) {
+                    lookahead3.push(currentFinalState);
+                    currentFinalState = lookahead2.pop();
+                }
+                // lookahead for kleene
                 if ((i+1) < postFixRegExp.length()) {
                     if (Character.toString(postFixRegExp.charAt(i+1)).equals("*")) {
                         // danger, I said danger
@@ -169,6 +194,13 @@ public class AFN {
         }
     }
 
+    /**
+     * Union | in Thompson's algorithm
+     * @param upperInitialState
+     * @param upperFinalState
+     * @param lowerInitialState
+     * @param lowerFinalState
+     */
     private void unify(State upperInitialState, State upperFinalState, State lowerInitialState, State lowerFinalState) {
         // create two new states
         State in = new State(stateCount);
@@ -190,12 +222,22 @@ public class AFN {
         transitionsList.add(tr4);
     }
 
+    /**
+     * Concatenation in Thompson's algorithm
+     * @param initialState
+     * @param finalState
+     */
     private void concatenate(State initialState, State finalState) {
         Transition tr1 = new Transition("ε", initialState, finalState);
         currentInitialState = currentFinalState;
         transitionsList.add(tr1);
     }
 
+    /**
+     * Kleene star in Thompson's algorithm
+     * @param initialState
+     * @param finalState
+     */
     private void kleene(State initialState, State finalState) {
         State in = new State(stateCount);
         currentInitialState = in;
@@ -212,5 +254,27 @@ public class AFN {
         transitionsList.add(tr3);
         transitionsList.add(tr4);
     }
+
+    public List<Character> getSymbolList () {
+        return this.symbolList;
+    }
+
+    public List<Transition> getTransitionsList () {
+        return this.transitionsList;
+    }
+
+    public List<State> getFinalStates () {
+        return this.finalStates;
+    }
+
+    public List<String> getStates () {
+        return this.states;
+    }
+
+    public List<String> getInitialState () {
+        return this.initialState;
+    }
+
+    public String getPostFixRegExp() { return this.postFixRegExp; }
 
 }
