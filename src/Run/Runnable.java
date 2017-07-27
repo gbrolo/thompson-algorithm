@@ -36,6 +36,10 @@ public class Runnable {
                 " * Valid characters:\n" +
                 " *      Use any symbol rather than '|', '*', '+', '?', '^', '.'\n" +
                 " *      You MUST use ε in your expression for representation of an empty word. (Just copy it from here) \n" +
+                " * Example of regexps: \n" +
+                " *      0?(1|ε)?0* \n" +
+                " *      (b|b)*abb(a|b)* \n" +
+                " * Accepts abbreviations and concatenation by yuxtaposition \n" +
                 "Enter your regexp after this line:");
         Scanner sc = new Scanner(System.in);
 
