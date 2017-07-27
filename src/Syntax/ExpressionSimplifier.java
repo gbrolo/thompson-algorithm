@@ -41,7 +41,7 @@ public class ExpressionSimplifier {
                     // case ( 2 )
                     // first find lower bound
                     for (int j = (i-1); j >= 0; j--) {
-                        if (Character.toString(regExp.charAt(j)).equals("(")) {
+                        if ((Character.toString(regExp.charAt(j)).equals("(")) && (j == 0)) {
                             // stop
                             String symbolSequence = (String) regExp.subSequence(j+1, i-1);
                             String symbolSequenceWithBrackets = (String) regExp.subSequence(j, i);
@@ -80,7 +80,7 @@ public class ExpressionSimplifier {
                     // case ( 2 )
                     // first find lower bound
                     for (int j = (i-1); j >= 0; j--) {
-                        if (Character.toString(regExp.charAt(j)).equals("(")) {
+                        if ((Character.toString(regExp.charAt(j)).equals("(")) && (j == 0)) {
                             // stop
                             String symbolSequence = (String) regExp.subSequence(j+1, i-1);
                             String symbolSequenceWithBrackets = (String) regExp.subSequence(j, i);

@@ -34,6 +34,7 @@ public class AFN {
     private Stack<State> lookahead;
     private Stack<State> lookahead2;
     private Stack<State> lookahead3;
+    private Stack<State> lookahead4;
 
     /* Abbrebiations and yuxtaposition concatenation */
     private ExpressionSimplifier expressionSimplifier;
@@ -48,12 +49,13 @@ public class AFN {
         expressionSimplifier = new ExpressionSimplifier(this.regExp);
         postFix = new PostFix();
         postFixRegExp = PostFix.infixToPostfix(expressionSimplifier.getRegExp());
-        //System.out.println(expressionSimplifier.getRegExp());
+        System.out.println("Simplified: " + expressionSimplifier.getRegExp());
         symbolList = new LinkedList<Character>();
         transitionsList = new LinkedList<Transition>();
         lookahead = new Stack<State>();
         lookahead2 = new Stack<State>();
         lookahead3 = new Stack<State>();
+        lookahead4 = new Stack<State>();
         finalStates = new LinkedList<State>();
         initialState = new LinkedList<String>();
         states = new LinkedList<String>();
@@ -139,6 +141,10 @@ public class AFN {
                 }
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("|")) {
                 // if char is OR
+                if (lookahead4.size() > 0) {
+                    previousInitialState = lookahead4.pop();
+                }
+                System.out.println(previousFinalState);
                 unify(previousInitialState, previousFinalState, currentInitialState, currentFinalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("*")) {
                 //if char is kleene
@@ -157,6 +163,12 @@ public class AFN {
                 kleene(currentInitialState, currentFinalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals(".")) {
                 // if char is concatenation
+
+                if ((i+2) < (postFixRegExp.length())) {
+                    if ((!symbolList.contains(postFixRegExp.charAt(i+2))) && (Character.toString(postFixRegExp.charAt(i+2)).equals("|"))) {
+                        lookahead4.push((previousInitialState));
+                    }
+                }
 
                 // lookahead for concatenation
                 if ((i+1) < postFixRegExp.length()) {
