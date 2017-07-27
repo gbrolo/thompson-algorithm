@@ -41,15 +41,17 @@ public class ExpressionSimplifier {
                     // case ( 2 )
                     // first find lower bound
                     for (int j = (i-1); j >= 0; j--) {
-                        if ((Character.toString(regExp.charAt(j)).equals("(")) && (j == 0)) {
+                        if ((Character.toString(regExp.charAt(j)).equals("("))) {
                             // stop
-                            String symbolSequence = (String) regExp.subSequence(j+1, i-1);
-                            String symbolSequenceWithBrackets = (String) regExp.subSequence(j, i);
-                            String subExp = "(" + symbolSequenceWithBrackets + "|ε)";
+                            if (j != 0) {
+                                String symbolSequence = (String) regExp.subSequence(j+1, i-1);
+                                String symbolSequenceWithBrackets = (String) regExp.subSequence(j, i);
+                                String subExp = "(" + symbolSequenceWithBrackets + "|ε)";
 
-                            String left = regExp.substring(0, j);
-                            String right = regExp.substring(i+1);
-                            regExp = left+subExp+right;
+                                String left = regExp.substring(0, j);
+                                String right = regExp.substring(i+1);
+                                regExp = left+subExp+right;
+                            }
                         }
                     }
                 }
@@ -80,15 +82,17 @@ public class ExpressionSimplifier {
                     // case ( 2 )
                     // first find lower bound
                     for (int j = (i-1); j >= 0; j--) {
-                        if ((Character.toString(regExp.charAt(j)).equals("(")) && (j == 0)) {
+                        if ((Character.toString(regExp.charAt(j)).equals("("))) {
                             // stop
-                            String symbolSequence = (String) regExp.subSequence(j+1, i-1);
-                            String symbolSequenceWithBrackets = (String) regExp.subSequence(j, i);
-                            String subExp = symbolSequenceWithBrackets + symbolSequenceWithBrackets + "*";
+                            if( j != 0) {
+                                String symbolSequence = (String) regExp.subSequence(j+1, i-1);
+                                String symbolSequenceWithBrackets = (String) regExp.subSequence(j, i);
+                                String subExp = symbolSequenceWithBrackets + symbolSequenceWithBrackets + "*";
 
-                            String left = regExp.substring(0, j);
-                            String right = regExp.substring(i+1);
-                            regExp = left+subExp+right;
+                                String left = regExp.substring(0, j);
+                                String right = regExp.substring(i+1);
+                                regExp = left+subExp+right;
+                            }
                         }
                     }
                 }

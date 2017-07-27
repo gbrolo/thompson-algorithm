@@ -49,7 +49,7 @@ public class AFN {
         expressionSimplifier = new ExpressionSimplifier(this.regExp);
         postFix = new PostFix();
         postFixRegExp = PostFix.infixToPostfix(expressionSimplifier.getRegExp());
-        System.out.println("Simplified: " + expressionSimplifier.getRegExp());
+        //System.out.println("Simplified: " + expressionSimplifier.getRegExp());
         symbolList = new LinkedList<Character>();
         transitionsList = new LinkedList<Transition>();
         lookahead = new Stack<State>();
@@ -144,7 +144,7 @@ public class AFN {
                 if (lookahead4.size() > 0) {
                     previousInitialState = lookahead4.pop();
                 }
-                System.out.println(previousFinalState);
+                //System.out.println(previousFinalState);
                 unify(previousInitialState, previousFinalState, currentInitialState, currentFinalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("*")) {
                 //if char is kleene
@@ -202,6 +202,9 @@ public class AFN {
 
             if (i == postFixRegExp.length()-1) {
                 finalStates.add(currentFinalState);
+                if (symbolList.contains('ε')) {
+                    symbolList.remove(symbolList.indexOf('ε'));
+                }
             }
         }
     }
