@@ -52,7 +52,7 @@ After running the program, a text file with the contents of the
 AFN will be exported as:
 
 ```
-src\AFN.txt
+root_directory\AFN.txt
 ```
 
 ## Authors
