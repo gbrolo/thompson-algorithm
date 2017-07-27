@@ -51,6 +51,7 @@ public class ExpressionSimplifier {
                                 String left = regExp.substring(0, j);
                                 String right = regExp.substring(i+1);
                                 regExp = left+subExp+right;
+                                break;
                             }
                         }
                     }
@@ -81,10 +82,16 @@ public class ExpressionSimplifier {
                 } else {
                     // case ( 2 )
                     // first find lower bound
+                    int bracketCounter = 0;
                     for (int j = (i-1); j >= 0; j--) {
+                        if ((j != (i-1)) && (Character.toString(regExp.charAt(j)).equals(")"))) {
+                            bracketCounter++;
+                        }
+                        // stop
                         if ((Character.toString(regExp.charAt(j)).equals("("))) {
-                            // stop
-                            if( j != 0) {
+                            if (bracketCounter != 0) {
+                                bracketCounter--;
+                            } else {
                                 String symbolSequence = (String) regExp.subSequence(j+1, i-1);
                                 String symbolSequenceWithBrackets = (String) regExp.subSequence(j, i);
                                 String subExp = symbolSequenceWithBrackets + symbolSequenceWithBrackets + "*";
@@ -92,6 +99,10 @@ public class ExpressionSimplifier {
                                 String left = regExp.substring(0, j);
                                 String right = regExp.substring(i+1);
                                 regExp = left+subExp+right;
+                            }
+
+                            if( j != 0) {
+
                             }
                         }
                     }
