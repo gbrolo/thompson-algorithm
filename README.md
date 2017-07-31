@@ -3,6 +3,9 @@
 An implementation of McNaughton-Yamada-Thompson's algorithm
 in Java to create an AFN from a Regular Expression.
 
+Note: If you are a current student of 2017's 'Diseño de Lenguajes de Programación' at UVG,
+YOU CANNOT USE THIS CODE IN ANY WAY, LICENSE WON'T APPLY IN THIS CASE. JUST DON'T...
+
 ## Getting Started
 
 Fork the project or download it. Then just add the project
@@ -10,12 +13,15 @@ to your prefered IDE or compile it from Console.
 
 ### Prerequisites
 
-Java SE8.
+Java SE8. SDK 8.
 
 ### Installing
 
-Load the project to an IDE or copy the contents to a folder.
-Then compile the project from console or with IDE. 
+Load the project to an IDE or copy the contents to a folder. 
+Then compile the project from console or with IDE.
+
+Note: Automated support for Jetbrains' IntelliJ (just load the project).
+
 Main class is:
 
 ```
