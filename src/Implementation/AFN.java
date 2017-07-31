@@ -26,15 +26,10 @@ public class AFN {
 
     public static int stateCount; // id for States
 
-    /* For state handlening */
-    private State currentInitialState;
-    private State currentFinalState;
-    private State previousInitialState;
-    private State previousFinalState;
-    private Stack<State> lookahead;
-    private Stack<State> lookahead2;
-    private Stack<State> lookahead3;
-    private Stack<State> lookahead4;
+    /* To save state reference */
+    private State saveFinal;
+    private Stack<State> stackInitial;
+    private Stack<State> stackFinal;
 
     /* Abbrebiations and yuxtaposition concatenation */
     private ExpressionSimplifier expressionSimplifier;
@@ -52,13 +47,11 @@ public class AFN {
         //System.out.println("Simplified: " + expressionSimplifier.getRegExp());
         symbolList = new LinkedList<Character>();
         transitionsList = new LinkedList<Transition>();
-        lookahead = new Stack<State>();
-        lookahead2 = new Stack<State>();
-        lookahead3 = new Stack<State>();
-        lookahead4 = new Stack<State>();
         finalStates = new LinkedList<State>();
         initialState = new LinkedList<String>();
         states = new LinkedList<String>();
+        stackInitial = new Stack<>();
+        stackFinal = new Stack<>();
         computeSymbolList();
         regExpToAFN();
         computeStateList();
@@ -98,13 +91,7 @@ public class AFN {
      * Adds AFN's initial state to list
      */
     public void computeInitialState() {
-        for (int i = 0; i < transitionsList.size(); i++) {
-            if (transitionsList.get(i).getInitialState().getPreviousStates().size() == 0) {
-                if (!initialState.contains(transitionsList.get(i).getInitialState().toString())) {
-                    initialState.add(transitionsList.get(i).getInitialState().toString());
-                }
-            }
-        }
+        initialState.add(stackInitial.pop().toString());
     }
 
     /**
@@ -113,95 +100,44 @@ public class AFN {
      */
     private void regExpToAFN(){
         // valid expression stored at postFixRegExp
-
-        // new transition for first symbol
         // from here, every symbol has a Transition that represents it
-        Transition tr0 = new Transition(Character.toString(postFixRegExp.charAt(0)));
-        transitionsList.add(tr0);
-        currentInitialState = tr0.getInitialState();
-        currentFinalState = tr0.getFinalState();
-
         // Traverse the rest of the expression
-        for (int i = 1; i < postFixRegExp.length(); i ++) {
+        for (int i = 0; i < postFixRegExp.length(); i ++) {
             // if character at i is in symbolList
             if (symbolList.contains(postFixRegExp.charAt(i))) {
                 Transition tr1 = new Transition(Character.toString(postFixRegExp.charAt(i)));
                 transitionsList.add(tr1);
-                previousInitialState = currentInitialState;
-                currentInitialState = tr1.getInitialState();
-                previousFinalState = currentFinalState;
-                currentFinalState = tr1.getFinalState();
 
-                // lookahead for yuxtaposed symbols
-                if ((i+1) <= postFixRegExp.length()) {
-                    if (symbolList.contains(postFixRegExp.charAt(i+1))) {
-                        // danger, I said danger
-                        lookahead.push(previousFinalState);
-                    }
-                }
+                State initialState = tr1.getInitialState();
+                State finalState = tr1.getFinalState();
+
+                stackInitial.push(initialState);
+                stackFinal.push(finalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("|")) {
                 // if char is OR
-                if (lookahead4.size() > 0) {
-                    previousInitialState = lookahead4.pop();
-                }
-                //System.out.println(previousFinalState);
-                unify(previousInitialState, previousFinalState, currentInitialState, currentFinalState);
+                State lowerInitial = stackInitial.pop();
+                State lowerFinal = stackFinal.pop();
+                State upperInitial = stackInitial.pop();
+                State upperFinal = stackFinal.pop();
+
+                unify(upperInitial, upperFinal, lowerInitial, lowerFinal);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals("*")) {
                 //if char is kleene
+                State initialState = stackInitial.pop();
+                State finalState = stackFinal.pop();
 
-                // lookahead for concatenation
-                if ((i+1) < postFixRegExp.length()) {
-                    if (Character.toString(postFixRegExp.charAt(i+1)).equals(".")) {
-                        // danger, I said danger
-                        lookahead.push(previousFinalState);
-                    }
-                }
-
-                if (lookahead2.size() > 0) {
-                    currentInitialState = lookahead2.pop();
-                }
-                kleene(currentInitialState, currentFinalState);
+                kleene(initialState, finalState);
             } else if (Character.toString(postFixRegExp.charAt(i)).equals(".")) {
                 // if char is concatenation
+                saveFinal = stackFinal.pop();
+                State finalState = stackFinal.pop();
+                State initialState = stackInitial.pop();
 
-                if ((i+2) < (postFixRegExp.length())) {
-                    if ((!symbolList.contains(postFixRegExp.charAt(i+2))) && (Character.toString(postFixRegExp.charAt(i+2)).equals("|"))) {
-                        lookahead4.push((previousInitialState));
-                    }
-                }
-
-                // lookahead for concatenation
-                if ((i+1) < postFixRegExp.length()) {
-                    if (Character.toString(postFixRegExp.charAt(i+1)).equals(".")) {
-                        // danger, I said danger
-                        lookahead2.push(previousInitialState);
-                    }
-                }
-
-                if(lookahead.size() > 0) {
-                    previousFinalState = lookahead.pop();
-                }
-
-                if(lookahead3.size() > 0) {
-                    currentFinalState = lookahead3.pop();
-                }
-
-                if(lookahead2.size() > 0) {
-                    lookahead3.push(currentFinalState);
-                    currentFinalState = lookahead2.pop();
-                }
-                // lookahead for kleene
-                if ((i+1) < postFixRegExp.length()) {
-                    if (Character.toString(postFixRegExp.charAt(i+1)).equals("*")) {
-                        // danger, I said danger
-                        lookahead2.push(previousInitialState);
-                    }
-                }
-                concatenate(previousFinalState, currentInitialState);
+                concatenate(finalState, initialState);
             }
 
             if (i == postFixRegExp.length()-1) {
-                finalStates.add(currentFinalState);
+                finalStates.add(stackFinal.pop());
                 if (symbolList.contains('ε')) {
                     symbolList.remove(symbolList.indexOf('ε'));
                 }
@@ -221,9 +157,6 @@ public class AFN {
         State in = new State(stateCount);
         State out = new State(stateCount);
 
-        currentInitialState = in;
-        currentFinalState = out;
-
         // create new transitions
         Transition tr1 = new Transition("ε", in, upperInitialState);
         Transition tr2 = new Transition("ε", in, lowerInitialState);
@@ -235,6 +168,9 @@ public class AFN {
         transitionsList.add(tr2);
         transitionsList.add(tr3);
         transitionsList.add(tr4);
+
+        stackInitial.push(in);
+        stackFinal.push(out);
     }
 
     /**
@@ -244,8 +180,10 @@ public class AFN {
      */
     private void concatenate(State initialState, State finalState) {
         Transition tr1 = new Transition("ε", initialState, finalState);
-        currentInitialState = currentFinalState;
         transitionsList.add(tr1);
+
+        stackFinal.push(saveFinal);
+        saveFinal = null;
     }
 
     /**
@@ -255,9 +193,7 @@ public class AFN {
      */
     private void kleene(State initialState, State finalState) {
         State in = new State(stateCount);
-        currentInitialState = in;
         State out = new State(stateCount);
-        currentFinalState = out;
 
         Transition tr1 = new Transition("ε", finalState, initialState); // upper kleene part
         Transition tr2 = new Transition("ε", in, out); // lower kleene part
@@ -268,6 +204,9 @@ public class AFN {
         transitionsList.add(tr2);
         transitionsList.add(tr3);
         transitionsList.add(tr4);
+
+        stackInitial.push(in);
+        stackFinal.push(out);
     }
 
     public List<Character> getSymbolList () {

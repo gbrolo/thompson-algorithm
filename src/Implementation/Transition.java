@@ -43,4 +43,6 @@ public class Transition {
     public String toString() {
         return initialState.toString() + " - " + transitionSymbol + " - " + finalState.toString();
     }
+
+    public String getTransitionSymbol() { return this.transitionSymbol; }
 }

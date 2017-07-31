@@ -1,7 +1,7 @@
-REGULAR EXPRESSION: 0?(1|ε)?0*
-REGULAR EXPRESSION IN POSTFIX: 0ε|1ε|ε|.0*.
-SYMBOL LIST: [0, 1]
-TRANSITIONS LIST: [0 - 0 - 1, 2 - ε - 3, 4 - ε - 0, 4 - ε - 2, 1 - ε - 5, 3 - ε - 5, 6 - 1 - 7, 8 - ε - 9, 10 - ε - 6, 10 - ε - 8, 7 - ε - 11, 9 - ε - 11, 12 - ε - 13, 14 - ε - 10, 14 - ε - 12, 11 - ε - 15, 13 - ε - 15, 5 - ε - 14, 16 - 0 - 17, 17 - ε - 16, 18 - ε - 19, 18 - ε - 16, 17 - ε - 19, 15 - ε - 18]
-FINAL STATE: [19]
-STATES: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-INITIAL STATE: [4]
+REGULAR EXPRESSION: b+abc+
+REGULAR EXPRESSION IN POSTFIX: bb*.a.b.c.c*.
+SYMBOL LIST: [a, b, c]
+TRANSITIONS LIST: [0 - b - 1, 2 - b - 3, 3 - ε - 2, 4 - ε - 5, 4 - ε - 2, 3 - ε - 5, 1 - ε - 4, 6 - a - 7, 5 - ε - 6, 8 - b - 9, 7 - ε - 8, 10 - c - 11, 9 - ε - 10, 12 - c - 13, 13 - ε - 12, 14 - ε - 15, 14 - ε - 12, 13 - ε - 15, 11 - ε - 14]
+FINAL STATE: [15]
+STATES: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+INITIAL STATE: [0]

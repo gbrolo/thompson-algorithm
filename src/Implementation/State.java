@@ -14,6 +14,9 @@ public class State {
     private List<State> nextStates;
     private int stateId;
 
+    private boolean isInitial;
+    private boolean isFinal;
+
     public State(int stateId) {
         this.stateId = stateId;
         this.previousStates = new LinkedList<State>();
@@ -28,6 +31,12 @@ public class State {
         AFN.stateCount++;
     }
 
+    public State(int stateId, boolean dfa) {
+        this.stateId = stateId;
+        this.previousStates = new LinkedList<>();
+        this.nextStates = new LinkedList<>();
+    }
+
     public void addPreviousState(State previousState) {
         this.previousStates.add(previousState);
     }
@@ -40,7 +49,19 @@ public class State {
         return this.previousStates;
     }
 
+    public List<State> getNextStates() { return this.nextStates; }
+
     public String toString() {
         return String.valueOf(this.stateId);
     }
+
+    public int getStateId() { return this.stateId; }
+
+    public void setInitial(boolean isInitial) { this.isInitial = isInitial; }
+
+    public boolean getInitial() { return this.isInitial; }
+
+    public void setFinal(boolean isFinal) { this.isFinal = isFinal; }
+
+    public boolean getFinal() { return this.isFinal; }
 }

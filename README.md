@@ -46,6 +46,12 @@ Example of a valid regular expression may be:
 
 Note that you can use abbreviations and yuxtaposed concatenation, ie. no
 need for placing '.' in your expression.
+
+For a list of regular expressions examples you can see:
+
+```
+root_directory\REGEXPS.txt
+```
 ## Deployment
 
 After running the program, a text file with the contents of the
